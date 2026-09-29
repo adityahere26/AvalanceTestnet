@@ -1,0 +1,451 @@
+[
+  {
+    "inputs": [],
+    "name": "BadCell",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CannotJoinOwnGame",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CellTaken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "GameNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotActive",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotPlayer",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotWaiting",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotYourTurn",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TimeoutNotReached",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "playerX",
+        "type": "address"
+      }
+    ],
+    "name": "GameCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum TicTacToe.Status",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "GameEnded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "playerO",
+        "type": "address"
+      }
+    ],
+    "name": "GameJoined",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "cell",
+        "type": "uint8"
+      }
+    ],
+    "name": "MovePlayed",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "TURN_TIMEOUT",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "cancelGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimTimeout",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "createGame",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "createSoloGame",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gameCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getGame",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "playerX",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "playerO",
+            "type": "address"
+          },
+          {
+            "internalType": "uint8[9]",
+            "name": "board",
+            "type": "uint8[9]"
+          },
+          {
+            "internalType": "uint8",
+            "name": "turn",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "moves",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum TicTacToe.Status",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint64",
+            "name": "lastMoveAt",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct TicTacToe.Game",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      }
+    ],
+    "name": "getPlayerGames",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "isSolo",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "joinGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint8",
+        "name": "cell",
+        "type": "uint8"
+      }
+    ],
+    "name": "play",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "limit",
+        "type": "uint256"
+      }
+    ],
+    "name": "recentGames",
+    "outputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "playerX",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "playerO",
+            "type": "address"
+          },
+          {
+            "internalType": "uint8[9]",
+            "name": "board",
+            "type": "uint8[9]"
+          },
+          {
+            "internalType": "uint8",
+            "name": "turn",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "moves",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum TicTacToe.Status",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint64",
+            "name": "lastMoveAt",
+            "type": "uint64"
+          }
+        ],
+        "internalType": "struct TicTacToe.Game[]",
+        "name": "list",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "soloStats",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "wins",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "losses",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "draws",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "stats",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "wins",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "losses",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "draws",
+        "type": "uint32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
