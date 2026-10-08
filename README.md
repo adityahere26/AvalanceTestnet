@@ -2,7 +2,7 @@
 
 A game of tic-tac-toe you will not win. You play against **Natalia**, a computer that cheats in the open. **Every move is an on-chain transaction** on the Avalanche Fuji testnet, and **players never need AVAX**.
 
-Live: https://avalance-testnet.vercel.app
+Live: https://natalia-game.vercel.app
 
 - **Login:** Privy (email or Google). Every player gets an embedded wallet automatically.
 - **Gas:** SmoothSend sponsors every transaction through ERC-4337 smart accounts. It's free on testnet.
