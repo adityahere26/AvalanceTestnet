@@ -1,6 +1,8 @@
-# Gasless Tic-Tac-Toe on Avalanche
+# Natalia
 
-Tic-Tac-Toe, **vs a friend, vs the computer, or vs a computer that cheats**, where **every move is an on-chain transaction** on the Avalanche Fuji testnet, and **players never need AVAX**.
+A game of tic-tac-toe you will not win. You play against **Natalia**, a computer that cheats in the open. **Every move is an on-chain transaction** on the Avalanche Fuji testnet, and **players never need AVAX**.
+
+Live: https://avalance-testnet.vercel.app
 
 - **Login:** Privy (email or Google). Every player gets an embedded wallet automatically.
 - **Gas:** SmoothSend sponsors every transaction through ERC-4337 smart accounts. It's free on testnet.
@@ -30,20 +32,22 @@ Tic-Tac-Toe, **vs a friend, vs the computer, or vs a computer that cheats**, whe
 - **Strategy:** it wins if it can, otherwise blocks, then takes the centre, a corner, then a side. It's strong, but a fork beats it.
 - **Stats:** solo results are stored separately in `soloStats` and don't affect two-player stats.
 
-### 😈 Rigged mode: you can't win
+### Natalia's rules (the mode the app uses)
 
 A single-player mode where the computer cheats in the open. The cheating happens in the contract, so it's provably rigged.
 
 | Cheat | When |
 |---|---|
-| 🦹 **Steal**: your winning ✕ turns into an ○ | Every time you're about to win |
-| ⏩ **Double move**: the computer plays twice and you lose your turn | Randomly, about 1 in 3 turns |
-| 🧽 **Erase**: one of your ✕ marks vanishes | Randomly, about 1 in 3 turns |
-| 📜 **Technicality**: a full board counts as a computer win | Whenever the board fills |
+| **Steal**: your winning X turns into an O | Every time you're about to win |
+| **Double move**: the computer plays twice and you lose your turn | Randomly, about 1 in 3 turns |
+| **Erase**: one of your X marks vanishes | Randomly, about 1 in 3 turns |
+| **Technicality**: a full board counts as a computer win | Whenever the board fills |
 
 - **Always ends:** every game finishes, because the computer gains at least one ○ per turn and never loses one.
 - **Stats:** results go to `riggedStats` (wins always 0).
-- **In the app:** the game screen announces each cheat and highlights the square it affected.
+- **In the app:** the game screen describes each cheat and highlights the square it affected.
+
+The app only offers this mode. The contract also still supports two-player games and a fair computer opponent (below), which the tests cover.
 
 ## Setup
 

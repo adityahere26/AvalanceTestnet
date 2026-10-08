@@ -12,7 +12,7 @@ export default function Providers({ children }) {
       appId={appId}
       config={{
         loginMethods: ["email", "google"],
-        appearance: { theme: "dark", accentColor: "#e84142" },
+        appearance: { theme: "light", accentColor: "#6d4c7d" },
         embeddedWallets: {
           ethereum: { createOnLogin: "all-users" },
           showWalletUIs: false, // no signing pop-up on every move
