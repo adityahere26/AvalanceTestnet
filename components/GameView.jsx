@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { EXPLORER, isSolo, read, same, short, Status, TURN_TIMEOUT } from "../lib/chain";
+import { CHEAT_MESSAGES, EXPLORER, isRigged, isSolo, read, same, short, Status, TURN_TIMEOUT } from "../lib/chain";
 
 const LINES = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -64,7 +64,7 @@ export default function GameView({ id, player, send, login, authenticated, onOpe
     setBusy("again");
     setError("");
     try {
-      await send("createSoloGame");
+      await send(isRigged(game) ? "createRiggedGame" : "createSoloGame");
       const mine = await read("getPlayerGames", [player]);
       onOpen(mine[mine.length - 1]);
     } catch (err) {
@@ -83,6 +83,9 @@ export default function GameView({ id, player, send, login, authenticated, onOpe
   }
 
   const solo = isSolo(game);
+  const rigged = isRigged(game);
+  const cheat = Number(game.lastCheat);
+  const cheatCell = Number(game.lastCheatCell);
   const board = game.board.map(Number);
   const me = same(game.playerX, player) ? 1 : same(game.playerO, player) ? 2 : 0;
   const myTurn = game.status === Status.Active && me !== 0 && game.turn === me;
@@ -97,14 +100,20 @@ export default function GameView({ id, player, send, login, authenticated, onOpe
     headline = me === 0
       ? `${MARK[game.turn]} to move`
       : myTurn
-        ? `Your turn (${MARK[me]})`
+        ? rigged ? "Your turn (✕). Not that it matters." : `Your turn (${MARK[me]})`
         : `Opponent's turn. Waiting for ${MARK[game.turn]}…`;
   else if (game.status === Status.Draw) headline = "It's a draw!";
   else if (game.status === Status.Cancelled) headline = "Game cancelled.";
   else {
     const winner = game.status === Status.XWon ? 1 : 2;
     headline =
-      me === winner ? "You won! 🎉" : solo && winner === 2 ? "The computer won 🤖" : me === 0 ? `${MARK[winner]} won!` : "You lost.";
+      me === winner
+        ? "You won! 🎉"
+        : rigged && winner === 2
+          ? me === 1 ? "You lost. Obviously. 😈" : "The cheating computer won 😈"
+          : solo && winner === 2
+            ? "The computer won 🤖"
+            : me === 0 ? `${MARK[winner]} won!` : "You lost.";
   }
 
   return (
@@ -115,7 +124,11 @@ export default function GameView({ id, player, send, login, authenticated, onOpe
       </div>
 
       <h1 className="headline">
-        {busy === "move" ? (solo ? "Sending your move… the computer replies on-chain" : "Sending your move on-chain…") : headline}
+        {busy === "move"
+          ? rigged
+            ? "Sending your move… the computer is plotting 😈"
+            : solo ? "Sending your move… the computer replies on-chain" : "Sending your move on-chain…"
+          : headline}
       </h1>
 
       <div className="players">
@@ -123,19 +136,32 @@ export default function GameView({ id, player, send, login, authenticated, onOpe
           ✕ {short(game.playerX)} {me === 1 && <b>(you)</b>}
         </span>
         <span className={game.turn === 2 && game.status === Status.Active ? "active" : ""}>
-          ○ {solo ? <><span className="icon">🤖</span>Computer</> : game.playerO === "0x0000000000000000000000000000000000000000" ? "—" : short(game.playerO)}{" "}
+          ○ {rigged ? <><span className="icon">😈</span>Cheating computer</> : solo ? <><span className="icon">🤖</span>Computer</> : game.playerO === "0x0000000000000000000000000000000000000000" ? "—" : short(game.playerO)}{" "}
           {me === 2 && <b>(you)</b>}
         </span>
       </div>
+
+      {rigged &&
+        (cheat !== 0 ? (
+          // key re-mounts the banner so the shake replays on every new cheat
+          <p className="cheatBanner" key={Number(game.cheats)} role="status">
+            {CHEAT_MESSAGES[cheat](cheatCell)}
+          </p>
+        ) : (
+          <p className="muted small">
+            😈 Rigged mode: this computer cheats.{Number(game.cheats) > 0 && ` Cheats so far: ${game.cheats}.`}
+          </p>
+        ))}
 
       <div className="board" role="grid" aria-label="Tic-Tac-Toe board">
         {board.map((v, i) => {
           const pending = pendingCell === i;
           const clickable = myTurn && v === 0 && busy === null;
+          const cheated = rigged && cheat !== 0 && cheatCell === i;
           return (
             <button
               key={i}
-              className={`cell ${v === 1 ? "x" : v === 2 ? "o" : ""} ${winLine?.includes(i) ? "win" : ""} ${pending ? "pending" : ""}`}
+              className={`cell ${v === 1 ? "x" : v === 2 ? "o" : ""} ${winLine?.includes(i) ? "win" : ""} ${pending ? "pending" : ""} ${cheated ? "cheated" : ""}`}
               disabled={!clickable}
               onClick={() => act("move", "play", [id, i], i)}
               aria-label={`Square ${i + 1}: ${v ? MARK[v] : "empty"}`}
@@ -186,7 +212,7 @@ export default function GameView({ id, player, send, login, authenticated, onOpe
         )}
         {game.status > Status.Active && solo && me === 1 && (
           <button disabled={busy !== null} onClick={playAgain}>
-            {busy === "again" ? "Starting…" : <><span className="icon">🤖</span>Play again</>}
+            {busy === "again" ? "Starting…" : rigged ? <><span className="icon">😈</span>Try again (you'll lose)</> : <><span className="icon">🤖</span>Play again</>}
           </button>
         )}
         {game.status > Status.Active && (

@@ -6,9 +6,11 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { avalancheFuji } from "viem/chains";
 import { createSmoothSendAvaxClient, predictSimpleAccountAddress } from "@smoothsend/sdk/avax";
 import abi from "../lib/abi.json" with { type: "json" };
+import deployment from "../lib/deployment.json" with { type: "json" };
 
-const { NEXT_PUBLIC_SMOOTHSEND_API_KEY: apiKey, NEXT_PUBLIC_CONTRACT_ADDRESS: address } = process.env;
-if (!apiKey || !address) throw new Error("Set NEXT_PUBLIC_SMOOTHSEND_API_KEY and NEXT_PUBLIC_CONTRACT_ADDRESS in .env");
+const { NEXT_PUBLIC_SMOOTHSEND_API_KEY: apiKey } = process.env;
+const { address } = deployment;
+if (!apiKey) throw new Error("Set NEXT_PUBLIC_SMOOTHSEND_API_KEY in .env");
 
 const publicClient = createPublicClient({ chain: avalancheFuji, transport: http() });
 const read = (functionName, args = []) => publicClient.readContract({ address, abi, functionName, args });
@@ -83,3 +85,31 @@ while (solo.status === 1) {
 }
 const [sw, sl, sd] = await read("soloStats", [alice.smartAccount]);
 console.log(`✓ Solo game #${soloId} finished with status ${solo.status} (2 X won, 3 computer won, 4 draw). Solo stats: ${sw}W ${sl}L ${sd}D`);
+
+// Rigged mode: the computer cheats, so a smart human (win > block > first free square) still loses.
+console.log("\nRigged game vs the cheating computer:");
+const CHEATS = ["", "STEAL", "ERASE", "DOUBLE MOVE", "TECHNICALITY"];
+const LINES = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+const finisher = (b, p) => {
+  for (const l of LINES) {
+    const empty = l.filter((c) => b[c] === 0);
+    if (empty.length === 1 && l.filter((c) => b[c] === p).length === 2) return empty[0];
+  }
+  return -1;
+};
+await alice.send("createRiggedGame");
+const rIds = await read("getPlayerGames", [alice.smartAccount]);
+const rId = rIds[rIds.length - 1];
+let rg = await read("getGame", [rId]);
+while (rg.status === 1) {
+  const b = rg.board.map(Number);
+  let cell = finisher(b, 1);
+  if (cell === -1) cell = finisher(b, 2);
+  if (cell === -1) cell = b.findIndex((v) => v === 0);
+  await alice.send("play", [rId, cell]);
+  rg = await read("getGame", [rId]);
+  console.log(`    board: ${rg.board.join(" ")}${rg.lastCheat ? `  😈 ${CHEATS[rg.lastCheat]}` : ""}`);
+}
+const [rw, rl] = await read("riggedStats", [alice.smartAccount]);
+if (rg.status !== 3) throw new Error(`Rigged game ended with status ${rg.status}`);
+console.log(`✓ Rigged game #${rId}: computer won after ${rg.cheats} cheat(s). Rigged stats: ${rw}W ${rl}L`);

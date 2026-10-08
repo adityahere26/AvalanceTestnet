@@ -1,11 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { isSolo, read, same, short, Status } from "../lib/chain";
+import { isRigged, isSolo, read, same, short, Status } from "../lib/chain";
 
 const STATUS_LABEL = ["Waiting for opponent", "In progress", "X won", "O won", "Draw", "Cancelled"];
 const SOLO_LABEL = ["", "In progress", "Player won", "Computer won", "Draw", ""];
-const label = (game) => (isSolo(game) ? `vs 🤖 · ${SOLO_LABEL[game.status]}` : STATUS_LABEL[game.status]);
+const label = (game) =>
+  isRigged(game)
+    ? `vs 😈 · ${SOLO_LABEL[game.status]}`
+    : isSolo(game)
+      ? `vs 🤖 · ${SOLO_LABEL[game.status]}`
+      : STATUS_LABEL[game.status];
+const CREATE_FN = { solo: "createSoloGame", rigged: "createRiggedGame", create: "createGame" };
 
 export default function Lobby({ player, send, login, authenticated, onOpen }) {
   const [games, setGames] = useState(null); // [{ id, game }]
@@ -27,12 +33,12 @@ export default function Lobby({ player, send, login, authenticated, onOpen }) {
     return () => clearInterval(t);
   }, [load]);
 
-  async function create(solo = false) {
+  async function create(kind) {
     if (!authenticated) return login();
-    setBusy(solo ? "solo" : "create");
+    setBusy(kind);
     setError("");
     try {
-      await send(solo ? "createSoloGame" : "createGame");
+      await send(CREATE_FN[kind]);
       const mine = await read("getPlayerGames", [player]);
       onOpen(mine[mine.length - 1]);
     } catch (err) {
@@ -71,10 +77,18 @@ export default function Lobby({ player, send, login, authenticated, onOpen }) {
           </p>
         </div>
         <div className="heroButtons">
-          <button onClick={() => create(true)} disabled={busy !== null || (authenticated && !player)}>
+          <button onClick={() => create("solo")} disabled={busy !== null || (authenticated && !player)}>
             {busy === "solo" ? "Starting…" : <><span className="icon">🤖</span>Play vs computer</>}
           </button>
-          <button className="ghost" onClick={() => create(false)} disabled={busy !== null || (authenticated && !player)}>
+          <button
+            className="rigged"
+            onClick={() => create("rigged")}
+            disabled={busy !== null || (authenticated && !player)}
+            title="The computer cheats. You cannot win."
+          >
+            {busy === "rigged" ? "Rigging the board…" : <><span className="icon">😈</span>Rigged mode</>}
+          </button>
+          <button className="ghost" onClick={() => create("create")} disabled={busy !== null || (authenticated && !player)}>
             {busy === "create" ? "Creating on-chain…" : <><span className="icon">👥</span>Play a friend</>}
           </button>
         </div>

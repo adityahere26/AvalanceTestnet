@@ -193,5 +193,70 @@ for (let round = 0; round < 5; round++) {
 }
 console.log("✓ 5 solo games with varied moves all finish correctly");
 
+// ---------- Rigged mode: the computer cheats and can never lose ----------
+const Mode = { PvP: 0n, Solo: 1n, Rigged: 2n };
+const Cheat = { None: 0n, Steal: 1n, Erase: 2n, DoubleMove: 3n, Technicality: 4n };
+
+// 17. Modes are recorded
+assert.equal((await game.getGame(0)).mode, Mode.PvP);
+assert.equal((await game.getGame(s1)).mode, Mode.Solo);
+await send(carol, "createRiggedGame");
+const r0 = (await game.gameCount()) - 1n;
+g = await game.getGame(r0);
+assert.equal(g.mode, Mode.Rigged);
+assert.equal(g.playerO, computer);
+assert.equal(g.lastCheat, Cheat.None);
+await assert.rejects(send(bob, "joinGame", r0), /NotWaiting/);
+await assert.rejects(send(bob, "play", r0, 0), /NotYourTurn/);
+console.log("✓ rigged game created; mode stored for every game type");
+
+// 18. A smart human (wins when it can, blocks, else varies) never beats the cheater
+const soloBefore = (await game.soloStats(carol.address)).toArray();
+const seen = { Steal: 0, Erase: 0, DoubleMove: 0, Technicality: 0 };
+const GAMES = 40;
+let longest = 0;
+for (let n = 0; n < GAMES; n++) {
+  const id = n === 0 ? r0 : (await send(carol, "createRiggedGame"), (await game.gameCount()) - 1n);
+  let turns = 0;
+  while ((await game.getGame(id)).status === Status.Active) {
+    const b = await board(id);
+    const empty = b.flatMap((v, i) => (v === 0 ? [i] : []));
+    let cell = winningCell(b, 1); // try to win
+    if (cell === -1) cell = winningCell(b, 2); // block the computer
+    if (cell === -1) cell = empty[(n * 5 + turns * 3) % empty.length];
+    await send(carol, "play", id, cell);
+    const after = await game.getGame(id);
+    for (const [name, v] of Object.entries(Cheat)) if (v !== 0n && after.lastCheat === v) seen[name]++;
+    turns++;
+    assert.ok(turns <= 20, `game ${id} did not end`);
+  }
+  const done = await game.getGame(id);
+  assert.equal(done.status, Status.OWon, `game ${id} ended with status ${done.status}`);
+  longest = Math.max(longest, turns);
+}
+console.log(`✓ ${GAMES} rigged games: computer won all of them (longest took ${longest} human moves)`);
+console.log(`  cheats seen: ${JSON.stringify(seen)}`);
+assert.ok(seen.Steal > 0, "expected a stolen winning move");
+assert.ok(seen.Erase > 0, "expected an erased mark");
+assert.ok(seen.DoubleMove > 0, "expected a double move");
+console.log("✓ steal, erase and double-move cheats all happen");
+
+// 19. Stats: rigged losses tracked separately, no wins or draws possible
+const rs = await game.riggedStats(carol.address);
+assert.deepEqual([rs.wins, rs.losses, rs.draws], [0n, BigInt(GAMES), 0n]);
+assert.deepEqual((await game.soloStats(carol.address)).toArray(), soloBefore);
+console.log("✓ rigged results go to riggedStats (0 wins, 0 draws)");
+
+// 20. Normal solo mode is unaffected and still beatable (fork from test 14 again)
+const s3 = await newSolo();
+await send(carol, "play", s3, 0);
+await send(carol, "play", s3, 8);
+b = await board(s3);
+await send(carol, "play", s3, b[2] === 0 ? 2 : 6);
+await send(carol, "play", s3, winningCell(await board(s3), 1));
+assert.equal((await game.getGame(s3)).status, Status.XWon);
+assert.equal((await game.getGame(s3)).cheats, 0n);
+console.log("✓ normal solo mode never cheats and is still beatable");
+
 console.log("\nAll tests passed.");
 process.exit(0);

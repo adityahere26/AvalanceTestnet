@@ -10,6 +10,8 @@
   --o: #2f6fdb;
   --win: #fff1c2;
   --err: #c0392b;
+  --cheat: #7b2cbf;
+  --cheat-bg: #f1e6fb;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -24,6 +26,8 @@
     --o: #6ea4ff;
     --win: #3a3320;
     --err: #ff7b6e;
+    --cheat: #c08cff;
+    --cheat-bg: #2a1a3d;
   }
 }
 
@@ -91,3 +95,19 @@ button:disabled { opacity: .5; cursor: default; }
 
 .actions { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 40px; }
 footer { font-size: 12px; text-align: center; margin-top: 24px; }
+
+/* Rigged mode */
+button.rigged { background: var(--cheat); color: #fff; }
+.cheatBanner {
+  background: var(--cheat-bg); color: var(--cheat); border: 1px solid var(--cheat);
+  border-radius: 10px; padding: 8px 12px; margin: 0 auto 14px; max-width: 330px;
+  font-weight: 600; font-size: 14px; animation: shake .5s ease-in-out;
+}
+.cell.cheated { outline: 3px solid var(--cheat); outline-offset: -3px; animation: shake .5s ease-in-out; }
+@keyframes shake {
+  20% { transform: translateX(-5px) rotate(-1deg); }
+  40% { transform: translateX(5px) rotate(1deg); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) { .cheatBanner, .cell.cheated { animation: none; } }

@@ -18,15 +18,9 @@ console.log("Deploy tx:", contract.deploymentTransaction().hash);
 await contract.waitForDeployment();
 const address = await contract.getAddress();
 
-// Save the address to .env so the Next.js app picks it up.
-const env = fs.existsSync(".env") ? fs.readFileSync(".env", "utf8") : "";
-const line = `NEXT_PUBLIC_CONTRACT_ADDRESS=${address}`;
-fs.writeFileSync(
-  ".env",
-  /^NEXT_PUBLIC_CONTRACT_ADDRESS=.*$/m.test(env)
-    ? env.replace(/^NEXT_PUBLIC_CONTRACT_ADDRESS=.*$/m, line)
-    : env.trimEnd() + "\n" + line + "\n"
-);
-console.log(`Saved ${line} to .env`);
+// The address is public, so it's committed with the code: the app (locally and on
+// Vercel) reads it from lib/deployment.json. Commit and push after deploying.
+fs.writeFileSync("lib/deployment.json", JSON.stringify({ address, chainId: Number(chainId) }, null, 2) + "\n");
+console.log("Saved address to lib/deployment.json (commit it so the live site uses it)");
 console.log("TicTacToe deployed at:", address);
 console.log(`Explorer: https://testnet.snowtrace.io/address/${address}`);

@@ -9,7 +9,6 @@ import GameView from "../components/GameView";
 const REQUIRED_ENV = {
   NEXT_PUBLIC_PRIVY_APP_ID: process.env.NEXT_PUBLIC_PRIVY_APP_ID,
   NEXT_PUBLIC_SMOOTHSEND_API_KEY: process.env.NEXT_PUBLIC_SMOOTHSEND_API_KEY,
-  NEXT_PUBLIC_CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS,
 };
 
 export default function Page() {
@@ -41,8 +40,8 @@ function App() {
 
   const refreshStats = useCallback(() => {
     if (player)
-      Promise.all([read("stats", [player]), read("soloStats", [player])])
-        .then(([pvp, solo]) => setStats({ pvp, solo }))
+      Promise.all([read("stats", [player]), read("soloStats", [player]), read("riggedStats", [player])])
+        .then(([pvp, solo, rigged]) => setStats({ pvp, solo, rigged }))
         .catch(() => {});
   }, [player]);
   useEffect(refreshStats, [refreshStats, gameId]);
@@ -61,8 +60,8 @@ function App() {
           ) : (
             <>
               {stats && (
-                <span className="stats" title="Wins / losses / draws">
-                  👥 {stats.pvp[0]}-{stats.pvp[1]}-{stats.pvp[2]} · 🤖 {stats.solo[0]}-{stats.solo[1]}-{stats.solo[2]}
+                <span className="stats" title="Wins-losses-draws vs friends and vs the computer; losses vs the cheater">
+                  👥 {stats.pvp[0]}-{stats.pvp[1]}-{stats.pvp[2]} · 🤖 {stats.solo[0]}-{stats.solo[1]}-{stats.solo[2]} · 😈 {stats.rigged[1]}L
                 </span>
               )}
               {player ? (

@@ -54,6 +54,31 @@
         "type": "uint256"
       },
       {
+        "indexed": false,
+        "internalType": "enum TicTacToe.Cheat",
+        "name": "cheat",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "cell",
+        "type": "uint8"
+      }
+    ],
+    "name": "Cheated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      },
+      {
         "indexed": true,
         "internalType": "address",
         "name": "playerX",
@@ -180,11 +205,24 @@
   },
   {
     "inputs": [],
+    "name": "createRiggedGame",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "createSoloGame",
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "gameId",
+        "name": "",
         "type": "uint256"
       }
     ],
@@ -250,6 +288,26 @@
             "internalType": "uint64",
             "name": "lastMoveAt",
             "type": "uint64"
+          },
+          {
+            "internalType": "enum TicTacToe.Mode",
+            "name": "mode",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum TicTacToe.Cheat",
+            "name": "lastCheat",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "lastCheatCell",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "cheats",
+            "type": "uint8"
           }
         ],
         "internalType": "struct TicTacToe.Game",
@@ -380,11 +438,60 @@
             "internalType": "uint64",
             "name": "lastMoveAt",
             "type": "uint64"
+          },
+          {
+            "internalType": "enum TicTacToe.Mode",
+            "name": "mode",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum TicTacToe.Cheat",
+            "name": "lastCheat",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "lastCheatCell",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "cheats",
+            "type": "uint8"
           }
         ],
         "internalType": "struct TicTacToe.Game[]",
         "name": "list",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "riggedStats",
+    "outputs": [
+      {
+        "internalType": "uint32",
+        "name": "wins",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "losses",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "draws",
+        "type": "uint32"
       }
     ],
     "stateMutability": "view",

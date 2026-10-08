@@ -19,8 +19,6 @@ RPC_URL=https://api.avax-test.network/ext/bc/C/rpc
 NEXT_PUBLIC_PRIVY_APP_ID=
 # SmoothSend API key (starts with pk_): https://dashboard.smoothsend.xyz
 NEXT_PUBLIC_SMOOTHSEND_API_KEY=
-# Filled in automatically by: npm run deploy
-NEXT_PUBLIC_CONTRACT_ADDRESS=
 `
 );
 console.log("Created .env with a new deployer wallet.");
